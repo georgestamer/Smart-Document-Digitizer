@@ -4,6 +4,8 @@ import torch
 from torch.utils.data import Dataset
 from PIL import Image
 
+from utils import *
+
 class SROIEDataset(Dataset):
     def __init__(self, img_dir, box_dir, entity_dir, img_size=(128, 32)):
         self.img_dir = img_dir
