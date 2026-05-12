@@ -1,31 +1,52 @@
+import os
+import cv2
 import torch
 from torch.utils.data import Dataset
-import cv2
-import os
-from utils import parse_line, crop_word
+from PIL import Image
 
 class SROIEDataset(Dataset):
-    def __init__(self, root):
+    def __init__(self, img_dir, box_dir, entity_dir, img_size=(128, 32)):
+        self.img_dir = img_dir
+        self.box_dir = box_dir
+        self.entity_dir = entity_dir
+        self.img_size = img_size
+
+        # IMPORTANT: enforce deterministic ordering
+        self.img_files = sorted(os.listdir(img_dir))
+        self.box_files = sorted(os.listdir(box_dir))
+        self.entity_files = sorted(os.listdir(entity_dir))
+
+        assert len(self.img_files) == len(self.box_files) == len(self.entity_files), \
+            "Mismatch between img/box/entity counts"
+
         self.samples = []
 
-        for file in os.listdir(root):
-            if file.endswith(".jpg"):
-                img_path = os.path.join(root, file)
-                txt_path = img_path.replace(".jpg", ".txt")
+        for i in range(len(self.img_files)):
+            img_path = os.path.join(img_dir, self.img_files[i])
+            box_path = os.path.join(box_dir, self.box_files[i])
+            ent_path = os.path.join(entity_dir, self.entity_files[i])
 
-                image = cv2.imread(img_path)
+            image = cv2.imread(img_path)
 
-                with open(txt_path, "r", encoding="utf-8") as f:
-                    lines = f.readlines()
+            # optional: read entity file (not used in OCR training here)
+            with open(ent_path, "r", encoding="utf-8") as f:
+                entity_lines = f.readlines()
 
-                for line in lines:
-                    coords, text = parse_line(line)
+            with open(box_path, "r", encoding="utf-8") as f:
+                box_lines = f.readlines()
 
-                    crop = crop_word(image, coords)
-                    crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
-                    crop = cv2.resize(crop, (128, 32))
+            for line in box_lines:
+                coords, text = parse_line(line)
 
-                    self.samples.append((crop, text))
+                crop = crop_word(image, coords)
+
+                if crop is None or crop.size == 0:
+                    continue
+
+                crop = cv2.cvtColor(crop, cv2.COLOR_BGR2GRAY)
+                crop = cv2.resize(crop, self.img_size)
+
+                self.samples.append((crop, text))
 
     def __len__(self):
         return len(self.samples)
