@@ -18,7 +18,8 @@ class CRNN(nn.Module):
             input_size=128 * 8,
             hidden_size=256,
             num_layers=2,
-            bidirectional=True
+            bidirectional=True,
+            batch_first=True,
         )
 
         self.fc = nn.Linear(512, num_classes)

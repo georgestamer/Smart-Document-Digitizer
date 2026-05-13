@@ -16,4 +16,7 @@ def parse_line(line):
     return coords, text
 
 def encode(text, char_to_idx):
-    return torch.tensor([char_to_idx[c] for c in text if c in char_to_idx])
+    seq = [char_to_idx[c] for c in text if c in char_to_idx]
+    if len(seq) == 0:
+        return None
+    return torch.tensor(seq)
