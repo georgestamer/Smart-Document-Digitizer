@@ -40,6 +40,23 @@ SROIE2019/
     entities/   # key-value entity JSON files
 ```
 
+### Example Image
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="./assets/img.png" width="300"/>
+      <br/>
+      <em>Input Image</em>
+    </td>
+    <td align="center">
+      <img src="./assets/img2.png" width="300"/>
+      <br/>
+      <em>Annotated Image (Ground Truth)</em>
+    </td>
+  </tr>
+</table>
+
 ## Character Vocabulary
 
 ```
